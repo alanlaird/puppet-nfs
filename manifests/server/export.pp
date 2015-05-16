@@ -31,18 +31,6 @@ define nfs::server::export (
         require => Nfs::Server::Export::Nfs_v4::Bindmount[$name]
     }
 
-    @@nfs::client::mount {"shared ${v4_export_name} by ${::clientcert}":
-      ensure    => $ensure,
-      mount     => $mount,
-      remounts  => $remounts,
-      atboot    => $atboot,
-      options   => $options,
-      bindmount => $bindmount,
-      nfstag    => $nfstag,
-      share     => $v4_export_name,
-      server    => $server,
-    }
-
     } else {
 
     nfs::server::export::configure{
@@ -57,15 +45,5 @@ define nfs::server::export (
       $_mount = $mount
     }
 
-    @@nfs::client::mount {"shared ${v3_export_name} by ${::clientcert}":
-      ensure   => $ensure,
-      mount    => $_mount,
-      remounts => $remounts,
-      atboot   => $atboot,
-      options  => $options,
-      nfstag   => $nfstag,
-      share    => $v3_export_name,
-      server   => $server,
-    }
   }
 }
