@@ -3,17 +3,18 @@
 
 class nfs::client::redhat::service {
 
-  Service {
-    require => Class['nfs::client::redhat::configure']
-  }
+# lint:ignore:selector_inside_resource  would not add much to readability
 
   service {'nfslock':
     ensure    => running,
     name      => $::nfs::client::redhat::params::osmajor ? {
-      7       => 'nfs-lock',
+      7       => 'rpc-statd',
       default => 'nfslock'
     },
-    enable    => true,
+    enable    => $::nfs::client::redhat::params::osmajor ? {
+      7       => undef,
+      default => true
+    },
     hasstatus => true,
     require   => $::nfs::client::redhat::params::osmajor ? {
       7 => Service['rpcbind'],
@@ -35,7 +36,10 @@ class nfs::client::redhat::service {
   if $::nfs::client::redhat::params::osmajor == 6 or $::nfs::client::redhat::params::osmajor == 7 {
     service {'rpcbind':
       ensure    => running,
-      enable    => true,
+      enable    => $::nfs::client::redhat::params::osmajor ? {
+        7       => undef,
+        default => true
+      },
       hasstatus => true,
       require   => [Package['rpcbind'], Package['nfs-utils']],
     }
@@ -47,4 +51,7 @@ class nfs::client::redhat::service {
       require   => [Package['portmap'], Package['nfs-utils']],
     }
   }
+
+# lint:endignore
+
 }

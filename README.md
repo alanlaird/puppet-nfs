@@ -24,7 +24,9 @@
 
 This module installs, configures and manages everything on NFS clients and servers.
 
-Github Master: [![Build Status](https://secure.travis-ci.org/echocat/puppet-nfs.png?branch=master)](https://travis-ci.org/echocat/puppet-nfs)
+[![Puppet Forge](http://img.shields.io/puppetforge/v/echocat/nfs.svg)](https://forge.puppetlabs.com/echocat/nfs)
+[![Build Status](https://secure.travis-ci.org/echocat/puppet-nfs.png?branch=master)](https://travis-ci.org/echocat/puppet-nfs)
+[![Puppet Forge Downloads](http://img.shields.io/puppetforge/dt/echocat/nfs.svg)](https://forge.puppetlabs.com/echocat/nfs) 
 
 ##Module Description
 
@@ -160,13 +162,26 @@ and on individual nodes.
 ```puppet
   node server {
     class { 'nfs::server':
-      nfs_v4 = true,
+      nfs_v4 => true,
       nfs_v4_export_root_clients =>
         '10.0.0.0/24(rw,fsid=root,insecure,no_subtree_check,async,no_root_squash)'
     }
     nfs::server::export{ '/data_folder':
       ensure  => 'mounted',
       clients => '10.0.0.0/24(rw,insecure,no_subtree_check,async,no_root_squash) localhost(rw)'
+    }
+  }
+```
+Set ownership and permissions on the folder being exported
+
+```puppet
+  node server {
+    nfs::server::export{ '/data_folder':
+      ensure  => 'mounted',
+      clients => '10.0.0.0/24(rw,insecure,no_subtree_check,async,no_root_squash) localhost(rw)',
+      owner => 'root',
+      group => 'root',
+      perms => '0755',
     }
   }
 ```
@@ -320,6 +335,11 @@ Set up NFS server and exports. NFSv3 and NFSv4 supported.
 
 **Parameters within `nfs::server`:**
 
+#####`service_manage` (true)
+
+Should this class manage the services behind nfs? Set this to false
+if you are managing the service in another way (e.g. pacemaker).
+
 #####`nfs_v4` (optional)
 
 NFSv4 support. Will set up automatic bind mounts to export root.
@@ -333,6 +353,19 @@ Export root, where we bind mount shares, default /export
 
 Domain setting for idmapd, must be the same across server
 and clients. Default is to use $domain fact.
+
+#####`exports` (optional)
+
+If set, this attribute will be used to
+construct nfs::server::export resources. You can use you ENC or hiera to
+provide the hash of nfs::server::export resources definitions:
+
+```hiera
+nfs::server::exports:
+  /mnt/something:
+    ensure: mounted
+    clients: '*(fsid=0,ro,insecure,async,all_squash,no_subtree_check,mountpoint=/mnt/something)'
+```
 
 #####Examples
 
@@ -523,3 +556,5 @@ If you want to have the full potential of this module its recommend to have stor
 Echocat modules are open projects. So if you want to make this module even better, you can contribute to this module on [Github](https://github.com/echocat/puppet-nfs).
 
 This module is forked/based on Harald Skoglund <haraldsk@redpill-linpro.com> from https://github.com/haraldsk/puppet-module-nfs/
+
+Please read DEVELOP.md on how to contribute to this module.

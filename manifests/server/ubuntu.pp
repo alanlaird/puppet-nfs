@@ -1,5 +1,5 @@
 # Debian specifix stuff
-class nfs::server::debian(
+class nfs::server::ubuntu(
   $nfs_v4              = false,
   $nfs_v4_idmap_domain = undef,
   $mountd_port         = undef,
@@ -7,8 +7,8 @@ class nfs::server::debian(
   $service_manage      = true,
 ) {
 
-  if !defined(Class['nfs::client::debian']) {
-    class{ 'nfs::client::debian':
+  if !defined(Class['nfs::client::ubuntu']) {
+    class{ 'nfs::client::ubuntu':
       nfs_v4              => $nfs_v4,
       nfs_v4_idmap_domain => $nfs_v4_idmap_domain,
     }
@@ -18,7 +18,7 @@ class nfs::server::debian(
     file_line { 'rpc-mount-options':
       ensure => present,
       path   => '/etc/default/nfs-kernel-server',
-      line   => "RPCMOUNTDOPTS=\"--manage-gids --port ${mountd_port} --num-threads ${mountd_threads}\"",
+      line   => "RPCMOUNTDOPTS=--manage-gids --port ${mountd_port} --num-threads ${mountd_threads}",
       match  => '^#?RPCMOUNTDOPTS';
     }
 
@@ -27,5 +27,5 @@ class nfs::server::debian(
     }
   }
 
-  include nfs::server::debian::install, nfs::server::debian::service
+  include nfs::server::ubuntu::install, nfs::server::ubuntu::service
 }

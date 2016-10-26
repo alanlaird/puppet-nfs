@@ -1,15 +1,18 @@
 require 'spec_helper'
-describe 'nfs::client::debian' do
+describe 'nfs::client::ubuntu' do
 
   it do
-    should contain_class('nfs::client::debian::install')
-    should contain_class('nfs::client::debian::configure')
-    should contain_class('nfs::client::debian::service')
+    should contain_class('nfs::client::ubuntu::install')
+    should contain_class('nfs::client::ubuntu::configure')
+    should contain_class('nfs::client::ubuntu::service')
 
     should contain_service('rpcbind').with(
       'ensure' => 'running'
     )
 
+    should contain_service('idmapd').with(
+      'ensure' => 'stopped'
+    )
     should contain_package('nfs-common')
     should contain_package('rpcbind')
     
